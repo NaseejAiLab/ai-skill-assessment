@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartRoute AI</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=DM+Sans:wght@700&display=swap");
+ 
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background-color: rgb(194, 194, 194);
+      color: white;
+      display: flex;
+    }
+
+    #chatBox {
+      display: none;
+      margin: 40x;
+    }
+ 
+    .sidebar {
+      width: 280px;
+      background-color: #26303B;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 10;
+    }
+ 
+    .search-box {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid #888;
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin-bottom: 25px;
+      background-color: transparent;
+    }
+ 
+    .search-box input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ddd;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+ 
+    .search-box img {
+      width: 25px;
+      height: 25px;
+    }
+ 
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: #ddd;
+      margin-bottom: 8px;
+    }
+ 
+    .sidebar .item {
+      display: flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 4px;
+      border-left: 4px solid transparent;
+      transition: border-color 0.2s ease;
+    }
+ 
+    .sidebar .item:hover {
+      background-color: transparent;
+      border-left-color: rgba(255, 255, 255, 0.6);
+    }
+ 
+    .sidebar .item img {
+      width: 35px;
+      margin-right: 10px;
+    }
+ 
+    .bottom-link {
+      margin-top: 20px;
+      font-size: 13px;
+      padding: 10px;
+      cursor: pointer;
+      color: white;
+    }
+ 
+    .bottom-link::before {
+      content: "+ ";
+    }
+ 
+    .bottom-link:hover {
+      background-color: #444a56;
+      border-radius: 6px;
+    }
+ 
+    .main {
+      position: relative;
+      flex: 1;
+      padding: 20px 50px 40px;
+      padding-bottom: 25px;
+      margin-left: 280px;
+      display: flex;
+      overflow-y: auto;
+      height: 95vh;
+      flex-direction: column;
+    }
+
+    #main-title {
+      color: rgba(138, 18, 34, 1);
+    }
+    .top-bar {
+      display: flex;
+      position: relative;
+      justify-content: space-between;
+      align-items: center;
+    }
+ 
+    .top-icons img {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+    }
+ 
+    h1 {
+      text-align: center;
+      font-size: 40px;
+      margin: 30px 0;
+    }
+ 
+    .cards {
+      display: flex;
+      justify-content: space-between;
+      gap: 40px;
+    }
+ 
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+ 
+     .section h2 {
+      font-size: 18px;
+      display: flex;
+      height: 40px;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      background-color: #26303B;
+      padding: 14px 18px;
+      border-radius: 8px;
+      color: white;
+    }
+ 
+    .section h2 img {
+      width: 60px;
+      height: 50px;
+    }
+ 
+    .card {
+      background-color: rgba(106, 106, 106, 0.57);
+      padding: 14px 18px;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      line-height: 1.4;
+      cursor: pointer;
+      text-decoration: none;
+      border-left: 4px solid rgba(90, 90, 90, 0.57);
+      transition: background-color 0.2s ease;
+    }
+
+ 
+    .card:hover {
+      background-color: rgba(255, 255, 255, 0.12);
+    }
+ 
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 600px;
+      height: 300px;
+      margin: 0 auto;
+      background-color: transparent;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+ 
+    .input-area {
+      display: none;
+      /* or block when needed */
+      position: fixed;
+      bottom: 70px;
+      left: 60%;
+      transform: translateX(-50%);
+      max-width: 600px;
+      width: calc(100% - 40px);
+      /* responsive width with some margin */
+      background-color: rgba(36, 36, 36, 0.2);
+      padding: 12px 16px;
+      border-radius: 10px;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      /* make sure it's above other elements */
+    }
+
+    .input-area input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      outline: none;
+      font-size: 14px;
+    }
+
+    .send-icon {
+      font-size: 20px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    .footer {
+      font-size: 12px;
+      color: #999;
+      text-align: center;
+      margin-top: 60px;
+      margin-bottom: 0px;
+      color: rgba(106, 106, 106, 0.57);
+    }
+
+    .footer a {
+      color: #26303B;
+      text-decoration: none;
+      margin: 0 5px;
+    }
+
+    .chat-output {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: rgba(164, 164, 164, 0.6);
+      padding: 14px 18px;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 60px;
+      overflow-y: auto;
+      display: none;
+    }
+  </style>
+</head>
+ 
+<body>
+  <div class="sidebar">
+    <div class="search-box">
+      <input type="text" placeholder="Contents..." />
+      <img src="b7.png" alt="Search" />
+    </div>
+
+    <h2 id="skill-title" style="text-align:center; color:#009890; font-size: 22px; margin-top: 20px;"></h2>
+
+    <div class="section-title"><strong>Recents</strong> <span>View all →</span></div>
+    <div class="item"><img src="b8.png" alt="">Communication Skills – Text Scenario</div>
+    <div class="item"><img src="b8.png" alt="">Problem Solving – Situational Q&A</div>
+    <div class="item"><img src="b8.png" alt="">Leadership Evaluation – AI Feedback</div>
+
+    <div class="section-title"><strong>Favorites</strong> <span>View all →</span></div>
+    <div class="item"><img src="b8.png" alt="">Analytical Thinking – Needs Training</div>
+    <div class="item"><img src="b8.png" alt="">Presentation Skills – Ongoing</div>
+
+    <div class="bottom-link" onclick="startConversation()">Start a New Skill Assessment</div>
+  </div>
+
+  <div class="main">
+    <div class="top-bar">
+      <div class="top-icons" onclick="location.href='EMdashboard.html'">
+        <span id="employee-name" style="color:white; font-weight: 400; left:1000px;"></span>
+        <img src="account.png" alt="Account" />
+      </div>
+    </div>
+
+    <h1 id="main-title">SmartRoute AI</h1>
+    <div class="cards" id="cards-container">
+      <div class="section">
+        <h2><img src="b6.png" alt="">Recents</h2>
+        <div class="card" onclick="startConversation()">Assess My Skills: Start a new skill evaluation</div>
+        <div class="card">View My Last Report: See latest scores & insights</div>
+        <div class="card">Analyze My Progress: Track skill improvement</div>
+      </div>
+      <div class="section">
+        <h2><img src="b5.png" alt="">Frequent</h2>
+        <div class="card">Answer a Scenario: Test yourself on a real-life situation</div>
+        <div class="card">Choose Skill Category: Select a skill to focus on</div>
+        <div class="card">Request Training Suggestions</div>
+      </div>
+      <div class="section">
+        <h2><img src="b4.png" alt="">Recommended</h2>
+        <div class="card">Suggested Training: Based on your last result</div>
+        <div class="card">Critical Thinking Test</div>
+        <div class="card">Problem-Solving Challenge</div>
+      </div>
+    </div>
+
+    <div class="chat-container">
+      <div class="chat-output" id="chatBox"></div>
+      <div class="input-area">
+        <input type="text" id="userInput" placeholder="Answer here…" autocomplete="off" />
+        <div class="send-icon" onclick="sendMessage()">&#10148;</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Check important info.
+      <a href="#">Privacy Policy</a>
+      <a href="#">Legal Notice</a><br />
+      Copyright © 2025 Ai Chat. All rights reserved.
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://lunhqsvkhlscwwcjecht.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1bmhxc3ZraGxzY3d3Y2plY2h0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyNjkzNDEsImV4cCI6MjA2Njg0NTM0MX0.tOsnoreDpdOWESxnUMRMCgRTGKM0VMqLFdxgmrOfq3I'
+    );
+
+    let employeeTitle = "";
+    let skill = "";
+    let conversation = [];
+    let evaluationActive = false;
+    let questionCount = 0;
+    let evaluationStep = 0; // 0 = ask job title, 1 = ask skill, 2 = ask questions
+
+
+    const questionPrompt = (skill) => `
+ You are an evaluator assessing the employee’s skill in ${skill}, strictly follow these rules:
+    Ask exactly one concise question at a time.
+    Must wait for the user's response before sending the next question.
+    Ask a total of exactly 5 questions.
+    Use only these formats: scenario-based, multiple-choice, or short-answer.
+    Each question must assess a different aspect of the skill.
+    Do not give feedback, summaries, or explanations between questions.
+    Do not include markdown, emojis, or extra prompts.
+    When providing questions or key points, highlight headers or question number by making them bold using Markdown syntax (i.e., **Question 1:**).
+    Begin by saying “Hello.” Then ask the first question.
+    Only ask one question per response. Do not include any instructions or notes for the user.
+`;
+
+function cleanAIResponse(text) {
+  return text
+    .replace(/\(Wait for response before proceeding.\)/gi, '')
+    .replace(/\(End of evaluation. No further questions.\)/gi, '')
+    .trim();
+}
+
+function appendMessage(sender, text) {
+  const chatBox = document.getElementById('chatBox');
+  const messageContainer = document.createElement('div');
+  messageContainer.style.marginBottom = '24px';
+
+  if (sender === "AI") {
+    const jsonMatch = text.match(/```json\s*([\s\S]*?)```/);
+    if (jsonMatch) {
+      try {
+        const scores = JSON.parse(jsonMatch[1]);
+        if (
+          typeof scores.totalScore === 'number' &&
+          typeof scores.clarity === 'number' &&
+          typeof scores.depth === 'number' &&
+          typeof scores.relevance === 'number'
+        ) {
+          const visuals = renderEvaluationVisuals(scores);
+          messageContainer.appendChild(visuals);
+        }
+        text = text.replace(jsonMatch[0], '').trim();
+      } catch (e) {
+        console.error('JSON parsing error:', e);
+      }
+    }
+
+    text = text.replace(/\n{2,}/g, '\n');
+  }
+
+  const formattedText = formatAITextToHTML(text.trim());
+  const textElement = document.createElement('p');
+  textElement.innerHTML = `<strong>${sender}:</strong><br>${formattedText}`;
+  messageContainer.appendChild(textElement);
+  chatBox.appendChild(messageContainer);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function formatAITextToHTML(text) {
+  if (!text) return "";
+  const escapeHTML = (str) =>
+    str.replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+  let escaped = escapeHTML(text);
+  escaped = escaped.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  escaped = escaped.replace(/__(.+?)__/g, "<strong>$1</strong>");
+  escaped = escaped.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  escaped = escaped.replace(/\n/g, "<br>");
+  return escaped;
+}
+
+function renderEvaluationVisuals(scores) {
+  const container = document.createElement('div');
+  container.style.margin = '20px 0';
+  container.style.color = 'white';
+  container.style.fontFamily = 'Poppins, sans-serif';
+
+  function createBar(label, value) {
+    const barContainer = document.createElement('div');
+    barContainer.style.marginBottom = '10px';
+    const labelEl = document.createElement('div');
+    labelEl.textContent = `${label}: ${value}%`;
+    labelEl.style.marginBottom = '4px';
+    const barBg = document.createElement('div');
+    barBg.style.background = '#444';
+    barBg.style.height = '16px';
+    barBg.style.borderRadius = '8px';
+    const barFill = document.createElement('div');
+    barFill.style.width = `${value}%`;
+    barFill.style.height = '100%';
+    barFill.style.background = '#009890';
+    barFill.style.borderRadius = '8px';
+    barBg.appendChild(barFill);
+    barContainer.appendChild(labelEl);
+    barContainer.appendChild(barBg);
+    return barContainer;
+  }
+
+  container.appendChild(createBar('Clarity', scores.clarity));
+  container.appendChild(createBar('Depth', scores.depth));
+  container.appendChild(createBar('Relevance', scores.relevance));
+
+  const circleContainer = document.createElement('div');
+  circleContainer.style.width = '120px';
+  circleContainer.style.height = '120px';
+  circleContainer.style.margin = '20px auto';
+  circleContainer.style.position = 'relative';
+
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("width", "120");
+  svg.setAttribute("height", "120");
+
+  const circleBg = document.createElementNS(svgNS, "circle");
+  circleBg.setAttribute("cx", "60");
+  circleBg.setAttribute("cy", "60");
+  circleBg.setAttribute("r", "54");
+  circleBg.setAttribute("stroke", "#444");
+  circleBg.setAttribute("stroke-width", "12");
+  circleBg.setAttribute("fill", "none");
+
+  const circleProgress = document.createElementNS(svgNS, "circle");
+  circleProgress.setAttribute("cx", "60");
+  circleProgress.setAttribute("cy", "60");
+  circleProgress.setAttribute("r", "54");
+  circleProgress.setAttribute("stroke", "#009890");
+  circleProgress.setAttribute("stroke-width", "12");
+  circleProgress.setAttribute("fill", "none");
+  circleProgress.setAttribute("stroke-linecap", "round");
+  circleProgress.setAttribute("transform", "rotate(-90 60 60)");
+
+  const circumference = 2 * Math.PI * 54;
+  circleProgress.setAttribute("stroke-dasharray", circumference);
+  const offset = circumference * (1 - scores.totalScore / 100);
+  circleProgress.setAttribute("stroke-dashoffset", offset);
+
+  svg.appendChild(circleBg);
+  svg.appendChild(circleProgress);
+  circleContainer.appendChild(svg);
+
+  const text = document.createElement('div');
+  text.textContent = `${scores.totalScore}%`;
+  text.style.position = 'absolute';
+  text.style.top = '50%';
+  text.style.left = '50%';
+  text.style.transform = 'translate(-50%, -50%)';
+  text.style.fontSize = '24px';
+  text.style.fontWeight = '700';
+  circleContainer.appendChild(text);
+
+  container.appendChild(circleContainer);
+  return container;
+}
+
+
+    function hideCardsAndTitle() {
+      document.getElementById("cards-container").style.display = "none";
+      document.getElementById("main-title").style.display = "none";
+      const chatBox = document.getElementById("chatBox");
+      chatBox.style.display = "block";
+      chatBox.innerHTML = "";
+      document.querySelector(".input-area").style.display = "flex";
+    }
+
+    async function startConversation() {
+      employeeTitle = "";
+      skill = "";
+      conversation = [];
+      evaluationActive = true;
+      questionCount = 0;
+      evaluationStep = 0;
+      hideCardsAndTitle();
+      appendMessage("AI", "Hello! What is your job title?");
+    }
+
+    async function sendMessage() {
+      if (!evaluationActive) return;
+
+      const input = document.getElementById('userInput');
+      const message = input.value.trim();
+      if (!message) return;
+      input.value = "";
+
+      appendMessage("You", message);
+
+      if (evaluationStep === 0) {
+        employeeTitle = message;
+        evaluationStep = 1;
+        appendMessage("AI", "Thanks. What skill would you like to be assessed on?");
+        return;
+      }
+
+      if (evaluationStep === 1) {
+        skill = message;
+        evaluationStep = 2;
+        appendMessage("AI", `Great! We will start assessing your skill: "${skill}". Please wait for the first question.`);
+
+        conversation = [
+          { role: "system", content: questionPrompt(skill) },
+          { role: "user", content: "Start the evaluation." }
+        ];
+
+        const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer sk-bcc80ccbbbb444eba7a99af86d26ce0a"
+          },
+          body: JSON.stringify({
+            model: "deepseek-chat",
+            messages: conversation
+          })
+        });
+
+        if (!response.ok) {
+          appendMessage("AI", "API error. Please try again later.");
+          evaluationActive = false;
+          return;
+        }
+
+        const data = await response.json();
+        const reply = data.choices?.[0]?.message?.content || "No question generated.";
+        conversation.push({ role: "assistant", content: reply });
+        
+        appendMessage("AI", reply);
+        return;
+      }
+
+      if (evaluationStep === 2) {
+        questionCount++;
+        conversation.push({ role: "user", content: message });
+
+        let nextSystemMessage = null;
+        if (questionCount < 5) {
+          nextSystemMessage = { role: "system", content: "Ask the next question." };
+        } else if (questionCount === 5) {
+          nextSystemMessage = { role: "system", content: `You are an evaluator assessing the employee’s skill in ${skill}, When providing summaries or key points, highlight important words or phrases by making them bold using Markdown syntax (i.e., **this**).
+    Provide the final evaluation summary with the following EXACT format ( strictly follow it ):
+    
+    1. A two-line summary of the employee’s overall performance.
+    2. Each question carries an equal weight of 20 points (total of 100). Evaluate and score strictly:
+      - Score 20 only for fully correct and complete answers.
+      - Score 10–19 for partially correct, vague, or incomplete responses.
+      - Score 0 for wrong, unrelated, or invalid answers.
+      - Do not assume user intent. Do not overestimate unclear answers.
+      - Judge strictly based on accuracy, completeness, and clarity.
+      - Assume the user is being tested for promotion, and accuracy matters.
+    
+    3. A skill level from 1 (novice) to 4 (expert) using the SFIA framework:
+      - Assign level as "Level 1" if totalScore ≤ 25, "Level 2" if ≤ 55, "Level 3" if ≤ 75, "Level 4" if ≤ 100.
+
+    4. A numeric score out of 100 based on accuracy, clarity, and depth.
+    5. Ratings of the employee’s answers (1–100 scale) in:
+      - Clarity
+      - Relevance
+      - Depth
+    
+    6. Recommended training areas (max 3 focus areas).
+    7. Exactly 3 course links based on the skill level:
+      - Level 1 → beginner-friendly
+      - Level 2 → foundational
+      - Level 3 → intermediate/advanced
+      - Level 4 → expert or specialized
+    8. Use only working, real URLs, existing courses.
+    9. Do not recommend beginner courses for level 3 or 4.
+    10. must put this exact valid JSON block in this format:
+    {
+      "totalScore": [number between 0-100],
+      "clarity": [number between 0-100],
+      "depth": [number between 0-100],
+      "relevance": [number between 0-100]
+    }
+    11. End the session after the evaluation. Include closing statements.
+    ` };
+    evaluationActive = false;
+        }
+
+        if (nextSystemMessage) {
+          conversation.push(nextSystemMessage);
+        }
+
+        const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer sk-bcc80ccbbbb444eba7a99af86d26ce0a"
+          },
+          body: JSON.stringify({
+            model: "deepseek-chat",
+            messages: conversation
+          })
+        });
+
+        if (!response.ok) {
+          appendMessage("AI", "API error. Please try again later.");
+          return;
+        }
+       
+        const data = await response.json();
+        const rawReply = data.choices?.[0]?.message?.content || "No reply.";
+
+// تنظيف الرد من ملاحظات النظام غير المرغوب بها
+const reply = cleanAIResponse(rawReply);
+
+conversation.push({ role: "assistant", content: reply });
+appendMessage("AI", reply);
+
+// معالجة التقييم النهائي بعد السؤال الخامس
+if (questionCount === 5) {
+  try {
+    const jsonMatch = reply.match(/\{[\s\S]*?\}/);
+    if (!jsonMatch) throw new Error("No JSON scores found");
+
+    const scores = JSON.parse(jsonMatch[0]);
+    const { totalScore, clarity, depth, relevance } = scores;
+
+    let sfiaLevel = "";
+    if (totalScore <= 25) sfiaLevel = "Level 1";
+    else if (totalScore <= 55) sfiaLevel = "Level 2";
+    else if (totalScore <= 75) sfiaLevel = "Level 3";
+    else sfiaLevel = "Level 4";
+
+    const { error } = await supabase.from("public_assessments").insert({
+      employee_title: employeeTitle,
+      skill_name: skill,
+      total_score: totalScore,
+      clarity: clarity,
+      depth: depth,
+      relevance: relevance,
+      sfia_level: sfiaLevel
+    });
+
+    if (error) {
+      appendMessage("AI", "Error saving assessment to database.");
+      console.error("Supabase insert error:", error);
+    } else {
+      appendMessage("AI", "Your assessment has been saved successfully.");
+    }
+  } catch (e) {
+    appendMessage("AI", "Failed to parse or save the evaluation results.");
+    console.error(e);
+  }
+}
+      }
+    }
+
+    document.getElementById("userInput").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
